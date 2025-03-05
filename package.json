@@ -1,0 +1,31 @@
+{
+  "name": "railway-trips-api",
+  "version": "1.0.0",
+  "description": "A trip has a departure place, a destination, a starting date, a duration and a number of passengers.",
+  "keywords": [
+    "node",
+    "mongodb",
+    "express"
+  ],
+  "homepage": "https://github.com/seifsheikhelarab/railway-trips-api#readme",
+  "bugs": {
+    "url": "https://github.com/seifsheikhelarab/railway-trips-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seifsheikhelarab/railway-trips-api.git"
+  },
+  "license": "MIT",
+  "author": "seifsheikhelarab",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.1"
+  }
+}
