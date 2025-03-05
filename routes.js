@@ -7,40 +7,86 @@ const router = express.Router();
 
 router.get('/trips', (req, res) => {
 
-    const { page = 1,
+    let { 
+            page = 1,
             limit = 10,
-            date_from = new Date(0).toISOString(),
-            date_till = new Date(8640000000000000).toISOString(), // max date in ms
+            date_from,
+            date_till,
             sort,
-            departure} 
+            departure = '',
+            destination = ''
+        } 
         = req.query;
 
+        let filter = {};
+
+        //Sorting Logic
         if(req.query.sort){
         sort = sort.split(',').join(' ');
         console.log(sort);
     };
 
+        //Date Logic
+        let fromDate = new Date(0).toISOString();
+        let tillDate = new Date(8640000000000000).toISOString();
 
-    // if (req.query.date_from) {
-    //     const fromDate = new Date(req.query.date_from.split('-').reverse().join('-')); 
-    //     console.log(fromDate);
-    // }
+        if(req.query.date_from){
+            const formattedFromDate = date_from.split('-');
+            fromDate = new Date(formattedFromDate[2], formattedFromDate[1]-1, formattedFromDate[0]);
+        }
+        if(req.query.date_till){
+            const formattedTillDate = date_till.split('-');
+            tillDate = new Date(formattedTillDate[2], formattedTillDate[1]-1, formattedTillDate[0]);
+        }
 
-    // if (req.query.date_till) {
-    //     const tillDate = new Date(req.query.date_till.split('-').reverse().join('-')); 
-    //     console.log(tillDate);
-    // }
+        //Departure and Destination Logic
+        if (departure) {
+            filter.departurePlace = departure;
+        }
+        if (destination) {
+            filter.destination = destination;
+        }
 
-    console.log(date_from);
-    console.log(date_till);
-
-    Trip.find()
+    Trip.find(filter)
         .skip((page - 1) * limit)
         .limit(limit)
-        //.where('startDate').lte(date_from).gte(date_till)
+        .where('startDate').gte(fromDate).lte(tillDate)
         .sort(sort)
         .then(trips => res.json(trips))
         .catch(err => res.status(500).json({ error: err.message }));
+});
+
+
+
+router.post('/trips', (req, res) => {
+
+    const {
+        departurePlace,
+        destination,
+        startDate,
+        duration,
+        numberOfPassengers
+    } = req.body;
+
+    if(numberOfPassengers<=1){
+        return res.status(400).json({error: "Number of passengers must be greater than 1"});
+    }
+
+    const formattedDate = startDate.split('-');
+    let formattedStartDate = new Date(formattedDate[2], formattedDate[1]-1, formattedDate[0]);
+
+    const newTrip = new Trip({
+        departurePlace,
+        destination,
+        startDate: formattedStartDate,
+        duration,
+        numberOfPassengers
+    });
+
+    newTrip.save()
+        .then(trip => res.status(201).json(trip))
+        .catch(err => res.status(500).json({ error: err.message }));
+
 });
 
 export default router;
